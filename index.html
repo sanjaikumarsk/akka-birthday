@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Happy Birthday, Akka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #221527; --bg-2: #3b1c2e;
+    --gold: #e7b44a; --gold-soft: #f3d98b;
+    --rose: #e4677e; --ivory: #f8eedd;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); min-height: 100%; }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0; min-height: 100%;
+    background-color: var(--bg-1);
+    background: radial-gradient(circle at 50% 0%, var(--bg-2), var(--bg-1) 60%);
+    color: var(--ivory); font-family: 'Work Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  #cover {
+    position: relative; min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2.5rem 1.5rem; text-align: center;
+  }
+  #cover.hidden { display: none; }
+  .lights {
+    position: absolute; top: calc(1.25rem + env(safe-area-inset-top, 0px)); left: 0; right: 0;
+    display: flex; justify-content: space-evenly; padding: 0 6%; pointer-events: none;
+  }
+  .lights span { width: 9px; height: 9px; border-radius: 50%; background: var(--gold-soft); box-shadow: 0 0 12px 4px rgba(231, 180, 74, 0.5); }
+  .lights span:nth-child(odd) { transform: translateY(7px); }
+  .kicker { font-size: 0.95rem; color: var(--rose); margin-bottom: 0.5rem; }
+  .balloon-trio svg { width: 92px; height: auto; margin: 0 auto 0.75rem; display: block; }
+  .gift { width: 76px; height: 76px; margin: 0.25rem auto 1.5rem; animation: breathe 2.6s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .lead { margin: 0 0 0.5rem; font-size: 1.05rem; }
+  .tap-btn {
+    margin-top: 2rem; border: 1px solid rgba(248, 238, 221, 0.35); background: transparent;
+    color: var(--ivory); font-family: 'Work Sans', sans-serif; font-size: 1rem;
+    padding: 0.85rem 1.9rem; border-radius: 999px; cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, opacity 0.3s ease;
+  }
+  .tap-btn:hover { background: rgba(248, 238, 221, 0.08); border-color: var(--gold-soft); }
+  .tap-btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+  .small-btn { margin-top: 1.25rem; font-size: 0.92rem; padding: 0.65rem 1.5rem; }
+
+  #content { display: none; }
+  #content.revealed { display: block; animation: rise 0.9s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  section { max-width: 480px; margin: 0 auto; padding: 2.75rem 1.5rem; text-align: center; }
+  .hero { position: relative; min-height: 50vh; min-height: 50dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(2.3rem, 9vw, 3.6rem); line-height: 1.1; margin: 0; color: var(--gold-soft); }
+  .hint { margin-top: 1rem; font-size: 0.9rem; color: rgba(248, 238, 221, 0.65); }
+
+  .message p, .closing p, .wish-section p { font-size: 1.05rem; line-height: 1.75; max-width: 36ch; margin: 0 auto 1.1rem; }
+  .tagline {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+    font-size: 1.2rem; line-height: 1.6; color: var(--gold-soft);
+    max-width: 30ch !important; margin: 1.5rem auto 0 !important;
+  }
+
+  .divider { padding: 0.25rem 1.5rem; }
+  .divider svg { width: 22px; height: 22px; margin: 0 auto; display: block; opacity: 0.9; }
+
+  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-style: italic; font-size: 1.35rem; color: var(--gold-soft); margin: 0 0 1.5rem; }
+  .reasons { list-style: none; padding: 0; margin: 0 auto; max-width: 34ch; text-align: left; }
+  .reasons li { position: relative; padding-left: 1.4rem; margin-bottom: 1rem; line-height: 1.6; font-size: 1rem; }
+  .reasons li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 6px; height: 6px; border-radius: 50%; background: var(--rose); }
+
+  .cake-caption { font-size: 0.95rem; color: rgba(248, 238, 221, 0.75); margin: 0 0 1.25rem; }
+  .illustration svg { width: 100%; max-width: 300px; height: auto; margin: 0 auto; display: block; overflow: visible; }
+  .candle-hit { cursor: pointer; }
+  .flame-visual { transition: opacity 0.35s ease; }
+  .flame-visual.out { opacity: 0; }
+  .glow { animation: flicker 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes flicker {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.12); }
+  }
+  .wish-msg {
+    margin: 1rem 0 0; font-family: 'Fraunces', serif; font-style: italic; font-size: 1.1rem;
+    color: var(--rose); opacity: 0; transition: opacity 0.5s ease;
+  }
+  .wish-msg.show { opacity: 1; }
+  .cut-hint { margin: 0.9rem 0 0; font-size: 0.85rem; color: rgba(248, 238, 221, 0.55); }
+
+  .fade-target { transition: opacity 0.6s ease; }
+  .fade-target.fade-out { opacity: 0; }
+
+  .knife { transform: translateY(-100px) rotate(-10deg); opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .knife.cut { animation: knifeSlice 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+  @keyframes knifeSlice {
+    0%   { transform: translateY(-100px) rotate(-10deg); opacity: 0; }
+    15%  { opacity: 1; }
+    58%  { transform: translateY(10px) rotate(1deg); }
+    78%  { transform: translateY(-4px) rotate(-6deg); }
+    100% { transform: translateY(0px) rotate(-3deg); opacity: 1; }
+  }
+  .smudge { opacity: 0; transition: opacity 0.3s ease 0.55s; }
+  .knife.cut .smudge { opacity: 0.9; }
+
+  .slice-wedge { transform: translate(0px, 0px) rotate(0deg) scale(1); transform-box: fill-box; transform-origin: center; }
+  .slice-wedge.cut { animation: wedgeLift 0.85s ease 0.46s both; }
+  @keyframes wedgeLift {
+    0%   { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+    40%  { transform: translate(2px, -4px) rotate(-2deg) scale(1.13); }
+    72%  { transform: translate(12px, 30px) rotate(6deg) scale(1.16); }
+    100% { transform: translate(16px, 38px) rotate(8deg) scale(1.15); }
+  }
+  .slice-shadow { opacity: 0; }
+  .slice-wedge.cut .slice-shadow { opacity: 0.4; transition: opacity 0.3s ease 0.5s; }
+  .slice-side { opacity: 0; }
+  .slice-wedge.cut .slice-side { opacity: 1; transition: opacity 0.2s ease 0.5s; }
+
+  .cake-body { transform-box: fill-box; transform-origin: 50% 100%; }
+  .cake-body.cut { animation: cakeJiggle 0.5s ease 0.5s; }
+  @keyframes cakeJiggle {
+    0%, 100% { transform: scaleY(1); }
+    30% { transform: scaleY(0.97); }
+    55% { transform: scaleY(1.015); }
+    80% { transform: scaleY(0.99); }
+  }
+
+  .closing .signature { margin-top: 1.5rem; font-family: 'Fraunces', serif; font-style: italic; font-size: 1.2rem; color: var(--rose); }
+
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  .balloon-fx {
+    position: fixed; bottom: -80px; width: 34px; z-index: 6; pointer-events: none;
+    animation-name: riseBalloon; animation-timing-function: ease-in; animation-fill-mode: forwards;
+  }
+  .balloon-fx svg { width: 100%; height: auto; display: block; }
+  @keyframes riseBalloon {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-125vh) rotate(10deg); opacity: 0; }
+  }
+
+  .spark-fx {
+    position: fixed; width: 6px; height: 6px; border-radius: 50%; z-index: 6; pointer-events: none;
+    animation: sparkOut 0.6s ease-out forwards;
+  }
+  @keyframes sparkOut {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gift { animation: none; }
+    #content.revealed { animation: none; opacity: 1; transform: none; }
+    .balloon-fx { animation: none; display: none; }
+    .knife.cut { animation: none; transform: translateY(0px) rotate(-3deg); opacity: 1; }
+    .slice-wedge.cut { animation: none; transform: translate(16px, 38px) rotate(8deg) scale(1.15); }
+    .cake-body.cut { animation: none; }
+    .spark-fx { display: none; }
+    .glow { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <section id="cover">
+    <div class="lights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="kicker">For Akka</div>
+    <div class="balloon-trio" aria-hidden="true">
+      <svg viewBox="0 0 140 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 55 Q40 75 60 85" stroke="#f8eedd" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <path d="M70 50 Q65 72 60 85" stroke="#f8eedd" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <path d="M108 55 Q95 75 60 85" stroke="#f8eedd" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <ellipse cx="30" cy="30" rx="21" ry="26" fill="#e4677e"/>
+        <ellipse cx="70" cy="22" rx="23" ry="28" fill="#e7b44a"/>
+        <ellipse cx="108" cy="30" rx="21" ry="26" fill="#f3d98b"/>
+      </svg>
+    </div>
+    <svg class="gift" viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="20" y="42" width="60" height="42" rx="4" fill="none" stroke="#f3d98b" stroke-width="3"/>
+      <rect x="20" y="42" width="60" height="14" fill="#e4677e" opacity="0.85"/>
+      <rect x="46" y="20" width="8" height="64" fill="#f3d98b"/>
+      <path d="M50 20 C38 6, 20 10, 26 24 C32 34, 50 30, 50 20 Z" fill="none" stroke="#e4677e" stroke-width="3"/>
+      <path d="M50 20 C62 6, 80 10, 74 24 C68 34, 50 30, 50 20 Z" fill="none" stroke="#e4677e" stroke-width="3"/>
+    </svg>
+    <p class="lead">A little something for you.</p>
+    <button class="tap-btn" id="openBtn">Tap to open</button>
+  </section>
+
+  <main id="content">
+    <section class="hero">
+      <div class="lights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h1>Happy Birthday,<br/>Akka</h1>
+      <p class="hint">(a little surprise is waiting below 👇)</p>
+    </section>
+
+    <section class="message">
+      <p>Whenever life throws a problem my way, you're the very first person I turn to — no hesitation, no second thought. You listen, you help more than you know, and somehow everything feels lighter after. Thank you for that, more than words can really say.</p>
+      <p>So today, it's simple: just a reminder of how loved you are, in case the day gets busy and no one else says it.</p>
+    </section>
+
+    <div class="divider" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" fill="#f3d98b"/></svg>
+    </div>
+
+    <section class="wish-section">
+      <p>On your birthday, I just want to say thank you for being a beautiful part of my life. No matter how busy life gets, I hope you always know that you are loved, valued and remembered.</p>
+      <p class="tagline">Keep smiling. Keep shining.<br/>And have the happiest birthday ever! ❤️</p>
+    </section>
+
+    <div class="divider" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" fill="#e4677e"/></svg>
+    </div>
+
+    <section class="illustration">
+      <p class="cake-caption">Tap each candle to make a wish 🕯️</p>
+      <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="plateGrad" cx="50%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="60%" stop-color="#f3ead6"/>
+            <stop offset="100%" stop-color="#cdb78d"/>
+          </radialGradient>
+          <radialGradient id="frostTop" gradientUnits="userSpaceOnUse" cx="110" cy="98" r="86" fx="84" fy="66">
+            <stop offset="0%" stop-color="#94623f"/>
+            <stop offset="40%" stop-color="#65371f"/>
+            <stop offset="100%" stop-color="#33190e"/>
+          </radialGradient>
+          <linearGradient id="sideGrad" gradientUnits="userSpaceOnUse" x1="0" y1="44" x2="0" y2="196">
+            <stop offset="0%" stop-color="#4a2718"/>
+            <stop offset="100%" stop-color="#1e0d07"/>
+          </linearGradient>
+          <radialGradient id="creamGrad" cx="40%" cy="35%" r="70%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#f1e0b8"/>
+          </radialGradient>
+          <radialGradient id="cherryGrad" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#ff8a95"/>
+            <stop offset="55%" stop-color="#c1122f"/>
+            <stop offset="100%" stop-color="#7d0a1e"/>
+          </radialGradient>
+          <pattern id="candleStripe" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="7" height="7" fill="#fff8ea"/>
+            <rect width="3.5" height="7" fill="#e4677e"/>
+          </pattern>
+          <radialGradient id="flameGrad" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#fff3c4"/>
+            <stop offset="100%" stop-color="#e7b44a"/>
+          </radialGradient>
+          <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffe9a8" stop-opacity="0.95"/>
+            <stop offset="55%" stop-color="#f3d98b" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#f3d98b" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="bladeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="55%" stop-color="#d5dbe0"/>
+            <stop offset="100%" stop-color="#9aa3ab"/>
+          </linearGradient>
+          <pattern id="cakeLayers" width="200" height="10" patternUnits="userSpaceOnUse">
+            <rect width="200" height="7" fill="#6b3d25"/>
+            <rect y="7" width="200" height="3" fill="#f3e2b8"/>
+          </pattern>
+          <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4"/>
+          </filter>
+        </defs>
+
+        <ellipse cx="110" cy="212" rx="84" ry="7" fill="#000" opacity="0.3" filter="url(#softShadow)"/>
+        <circle cx="110" cy="110" r="96" fill="url(#plateGrad)"/>
+        <circle cx="110" cy="110" r="96" fill="none" stroke="#b89f70" stroke-width="1"/>
+        <circle cx="110" cy="110" r="88" fill="none" stroke="#d9c8a6" stroke-width="1" opacity="0.7"/>
+
+        <circle cx="110" cy="120" r="76" fill="url(#sideGrad)"/>
+
+        <path id="innerFace" d="M110 98 L153.6 160.3 A76 76 0 0 1 66.4 160.3 Z" fill="url(#cakeLayers)" stroke="#1e0d07" stroke-width="1"/>
+
+        <path d="M66.4 160.3 A76 76 0 1 1 153.6 160.3 L110 98 Z" fill="url(#frostTop)" stroke="#1e0d07" stroke-opacity="0.5" stroke-width="1.2"/>
+        <path d="M48 88 Q54 60 80 46" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="3.5" stroke-linecap="round"/>
+
+        <g id="toppings">
+          <circle cx="173.8" cy="115.1" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="171.8" cy="113.1" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="156.7" cy="144.7" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="154.7" cy="142.7" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="63.3" cy="144.7" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="61.3" cy="142.7" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="46.3" cy="115.1" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="44.3" cy="113.1" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="46.3" cy="80.9" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="44.3" cy="78.9" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="63.3" cy="51.3" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="61.3" cy="49.3" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="156.7" cy="51.3" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="154.7" cy="49.3" r="2" fill="#fff" opacity="0.85"/>
+          <circle cx="173.8" cy="80.9" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="171.8" cy="78.9" r="2" fill="#fff" opacity="0.85"/>
+
+          <circle cx="173.8" cy="113.1" r="4.8" fill="url(#cherryGrad)"/><circle cx="172.2" cy="111.3" r="1.2" fill="#fff" opacity="0.8"/><path d="M173.8 108.7 q2 -5 6 -6" stroke="#4d7a2c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <circle cx="63.3" cy="142.7" r="4.8" fill="url(#cherryGrad)"/><circle cx="61.7" cy="140.9" r="1.2" fill="#fff" opacity="0.8"/><path d="M63.3 138.3 q2 -5 6 -6" stroke="#4d7a2c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <circle cx="46.3" cy="78.9" r="4.8" fill="url(#cherryGrad)"/><circle cx="44.7" cy="77.1" r="1.2" fill="#fff" opacity="0.8"/><path d="M46.3 74.5 q2 -5 6 -6" stroke="#4d7a2c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <circle cx="156.7" cy="49.3" r="4.8" fill="url(#cherryGrad)"/><circle cx="155.1" cy="47.5" r="1.2" fill="#fff" opacity="0.8"/><path d="M156.7 44.9 q2 -5 6 -6" stroke="#4d7a2c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+          <g stroke-width="2" stroke-linecap="round">
+            <line x1="70" y1="94" x2="74" y2="98" stroke="#e7b44a"/>
+            <line x1="140" y1="92" x2="144" y2="88" stroke="#e4677e"/>
+            <line x1="59.5" y1="116" x2="64.5" y2="116" stroke="#f8eedd"/>
+            <line x1="150" y1="104" x2="154" y2="108" stroke="#e7b44a"/>
+            <line x1="90" y1="80" x2="94" y2="76" stroke="#e4677e"/>
+            <line x1="128" y1="74" x2="132" y2="78" stroke="#f8eedd"/>
+            <line x1="80" y1="129.5" x2="80" y2="134.5" stroke="#e7b44a"/>
+            <line x1="140" y1="134" x2="144" y2="130" stroke="#e4677e"/>
+            <line x1="97.5" y1="72" x2="102.5" y2="72" stroke="#e4677e"/>
+            <line x1="120" y1="67.5" x2="120" y2="72.5" stroke="#e7b44a"/>
+            <line x1="56" y1="100" x2="60" y2="96" stroke="#f8eedd"/>
+            <line x1="162" y1="89.5" x2="162" y2="94.5" stroke="#f8eedd"/>
+          </g>
+        </g>
+
+        <g id="sliceWrap" class="fade-target">
+          <g id="sliceWedge" class="slice-wedge">
+            <path class="slice-shadow" d="M110 98 L153.6 160.3 A76 76 0 0 1 66.4 160.3 Z" transform="translate(3 8)" fill="#000" filter="url(#softShadow)"/>
+            <path class="slice-side" d="M153.6 160.3 A76 76 0 0 1 66.4 160.3 L66.4 168.3 A76 76 0 0 0 153.6 168.3 Z" fill="url(#cakeLayers)" stroke="#1e0d07" stroke-width="0.8"/>
+            <path d="M110 98 L153.6 160.3 A76 76 0 0 1 66.4 160.3 Z" fill="url(#frostTop)" stroke="#1e0d07" stroke-opacity="0.5" stroke-width="1.2"/>
+            <circle cx="127.1" cy="161.8" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="125.1" cy="159.8" r="2" fill="#fff" opacity="0.85"/>
+            <circle cx="92.9" cy="161.8" r="7" fill="url(#creamGrad)" stroke="#d9c7a0" stroke-width="0.6"/><circle cx="90.9" cy="159.8" r="2" fill="#fff" opacity="0.85"/>
+            <circle cx="127.1" cy="159.8" r="4.8" fill="url(#cherryGrad)"/><circle cx="125.5" cy="158" r="1.2" fill="#fff" opacity="0.8"/><path d="M127.1 155.4 q2 -5 6 -6" stroke="#4d7a2c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <g stroke-width="2" stroke-linecap="round">
+              <line x1="102" y1="116" x2="106" y2="120" stroke="#e7b44a"/>
+              <line x1="116" y1="128" x2="120" y2="124" stroke="#e4677e"/>
+              <line x1="98" y1="137.5" x2="98" y2="142.5" stroke="#f8eedd"/>
+              <line x1="120" y1="140" x2="124" y2="144" stroke="#e7b44a"/>
+              <line x1="108" y1="110" x2="112" y2="106" stroke="#e4677e"/>
+            </g>
+          </g>
+        </g>
+
+        <g id="cakeBody" class="cake-body">
+          <rect x="88" y="38" width="4" height="28" rx="2" fill="url(#candleStripe)"/>
+          <rect x="108" y="32" width="4" height="34" rx="2" fill="url(#candleStripe)"/>
+          <rect x="128" y="38" width="4" height="28" rx="2" fill="url(#candleStripe)"/>
+
+          <g class="candle-hit" data-flame="flame-1">
+            <circle cx="90" cy="30" r="16" fill="transparent"/>
+            <g id="flame-1" class="flame-visual">
+              <circle class="glow" cx="90" cy="30" r="17" fill="url(#glowGrad)"/>
+              <path class="flame" d="M90 34 q-4 -8 0 -14 q4 6 0 14 Z" fill="url(#flameGrad)"/>
+            </g>
+          </g>
+          <g class="candle-hit" data-flame="flame-2">
+            <circle cx="110" cy="24" r="16" fill="transparent"/>
+            <g id="flame-2" class="flame-visual">
+              <circle class="glow" cx="110" cy="24" r="17" fill="url(#glowGrad)"/>
+              <path class="flame" d="M110 28 q-4 -8 0 -14 q4 6 0 14 Z" fill="url(#flameGrad)"/>
+            </g>
+          </g>
+          <g class="candle-hit" data-flame="flame-3">
+            <circle cx="130" cy="30" r="16" fill="transparent"/>
+            <g id="flame-3" class="flame-visual">
+              <circle class="glow" cx="130" cy="30" r="17" fill="url(#glowGrad)"/>
+              <path class="flame" d="M130 34 q-4 -8 0 -14 q4 6 0 14 Z" fill="url(#flameGrad)"/>
+            </g>
+          </g>
+        </g>
+
+        <circle cx="8" cy="60" r="3" fill="#e4677e"/>
+        <circle cx="212" cy="72" r="3" fill="#f3d98b"/>
+        <circle cx="5" cy="150" r="2.5" fill="#e7b44a"/>
+        <circle cx="214" cy="158" r="2.5" fill="#e4677e"/>
+        <circle cx="208" cy="30" r="2" fill="#f8eedd"/>
+        <circle cx="12" cy="26" r="2" fill="#f8eedd"/>
+
+        <g id="knifeWrap" class="fade-target">
+          <g id="knife" class="knife">
+            <rect x="107" y="64" width="6" height="70" rx="2" fill="url(#bladeGrad)"/>
+            <rect x="103" y="128" width="14" height="22" rx="3" fill="#2a140a"/>
+            <circle cx="110" cy="134" r="1.4" fill="#e7b44a"/><circle cx="110" cy="144" r="1.4" fill="#e7b44a"/>
+            <circle class="smudge" cx="110" cy="70" r="3" fill="#5a301c"/>
+          </g>
+        </g>
+      </svg>
+      <p class="wish-msg" id="wishMsg">Wish made ✨</p>
+      <p class="cut-hint" id="cutHint">Blow out a candle to unlock the cake cutting 🕯️</p>
+      <button class="tap-btn small-btn" id="cutBtn" style="display:none;">🔪 Cut the cake</button>
+    </section>
+
+    <section class="closing">
+      <p>Have the most wonderful birthday, Akka. May it be full of cake, laughter, and everything that makes you happiest.</p>
+      <div class="signature">Your brother, Sanjai</div>
+    </section>
+  </main>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    const openBtn = document.getElementById('openBtn');
+    const cover = document.getElementById('cover');
+    const content = document.getElementById('content');
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function burstConfetti() {
+      const colors = ['#e7b44a', '#f3d98b', '#e4677e', '#f8eedd'];
+      const particles = Array.from({ length: 90 }, () => ({
+        x: Math.random() * canvas.width, y: -20 - Math.random() * canvas.height * 0.3,
+        r: 4 + Math.random() * 5, c: colors[Math.floor(Math.random() * colors.length)],
+        vy: 2 + Math.random() * 2.5, vx: -1.2 + Math.random() * 2.4,
+        rot: Math.random() * Math.PI, vr: -0.1 + Math.random() * 0.2,
+      }));
+      let frame = 0; const maxFrames = 260;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6); ctx.restore();
+        });
+        frame++;
+        if (frame < maxFrames) requestAnimationFrame(tick);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      tick();
+    }
+
+    function launchBalloons() {
+      const colors = ['#e4677e', '#e7b44a', '#f3d98b'];
+      for (let i = 0; i < 6; i++) {
+        const b = document.createElement('div');
+        b.className = 'balloon-fx';
+        const c = colors[i % colors.length];
+        b.innerHTML = '<svg viewBox="0 0 40 60"><path d="M20 2 C8 2 2 14 2 24 C2 36 12 46 20 46 C28 46 38 36 38 24 C38 14 32 2 20 2 Z" fill="' + c + '"/><path d="M20 46 L20 52" stroke="#f8eedd" stroke-width="1"/></svg>';
+        const dur = 4 + Math.random() * 2;
+        const delay = Math.random() * 0.6;
+        b.style.left = (5 + Math.random() * 85) + '%';
+        b.style.animationDuration = dur + 's';
+        b.style.animationDelay = delay + 's';
+        document.body.appendChild(b);
+        setTimeout(() => b.remove(), (dur + delay) * 1000 + 200);
+      }
+    }
+
+    function sparkleBurst(x, y) {
+      const colors = ['#f3d98b', '#e7b44a', '#f8eedd'];
+      for (let i = 0; i < 12; i++) {
+        const s = document.createElement('div');
+        s.className = 'spark-fx';
+        s.style.left = x + 'px';
+        s.style.top = y + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 16 + Math.random() * 26;
+        s.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+        s.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+        s.style.background = colors[i % colors.length];
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 650);
+      }
+    }
+
+    openBtn.addEventListener('click', () => {
+      cover.classList.add('hidden');
+      content.classList.add('revealed');
+      if (!reduceMotion) { burstConfetti(); launchBalloons(); }
+      window.scrollTo(0, 0);
+    });
+
+    const cutBtn = document.getElementById('cutBtn');
+    const cutHint = document.getElementById('cutHint');
+    let blownCount = 0;
+    document.querySelectorAll('.candle-hit').forEach(hit => {
+      hit.addEventListener('click', () => {
+        const flame = document.getElementById(hit.dataset.flame);
+        if (flame && !flame.classList.contains('out')) {
+          flame.classList.add('out');
+          blownCount++;
+          if (blownCount === 1) {
+            cutHint.style.display = 'none';
+            cutBtn.style.display = 'inline-block';
+          }
+          if (blownCount === 3) {
+            document.getElementById('wishMsg').classList.add('show');
+          }
+        }
+      });
+    });
+
+    const knife = document.getElementById('knife');
+    const knifeWrap = document.getElementById('knifeWrap');
+    const sliceWedge = document.getElementById('sliceWedge');
+    const sliceWrap = document.getElementById('sliceWrap');
+    const cakeBody = document.getElementById('cakeBody');
+    let cutOnce = false;
+    cutBtn.addEventListener('click', () => {
+      if (cutOnce) return;
+      cutOnce = true;
+      knife.classList.add('cut');
+      sliceWedge.classList.add('cut');
+      cakeBody.classList.add('cut');
+      cutBtn.textContent = 'Enjoy! 🍰';
+      if (!reduceMotion) {
+        const svgEl = document.querySelector('.illustration svg');
+        const rect = svgEl.getBoundingClientRect();
+        const scale = rect.width / 220;
+        const x = rect.left + 110 * scale;
+        const y = rect.top + 135 * scale;
+        setTimeout(() => sparkleBurst(x, y), 440);
+      }
+      setTimeout(() => {
+        knifeWrap.classList.add('fade-out');
+        sliceWrap.classList.add('fade-out');
+      }, 2000);
+      setTimeout(() => {
+        knifeWrap.style.display = 'none';
+        sliceWrap.style.display = 'none';
+      }, 2700);
+    });
+  </script>
+</body>
+</html>
